@@ -16,6 +16,9 @@ state/calibration.json
 *.swp
 *.swo
 
+# MCP registry tokens
+.mcpregistry_*
+
 # OS
 Thumbs.db
 .DS_Store
