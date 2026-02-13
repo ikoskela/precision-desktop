@@ -12,19 +12,36 @@ When Windows DPI scaling is set above 100% (which it is on most modern laptops a
 
 | Coordinate System | Used By | Example: Point at 50% across a 4K display |
 |---|---|---|
-| **Physical** (pixels) | Mouse events, `SetCursorPos`, screen capture | `1920, 1080` |
-| **Logical** (DPI-scaled) | `GetWindowRect`, `Cursor.Position`, `.NET`, most Win32 APIs | `1097, 617` (at 175% scaling) |
+| **Physical** (pixels) | Mouse events, `SetCursorPos`, UI Automation* | `1920, 1080` |
+| **Logical** (DPI-scaled) | `GetWindowRect`, `Cursor.Position`, `.NET`, **screenshots** | `1097, 617` (at 175% scaling) |
+
+\* *UI Automation returns physical on DPI-aware processes, logical on others — yet another inconsistency.*
 
 **The ratio between them is your DPI scale factor** (e.g., 1.25x, 1.5x, 1.75x, 2.0x).
 
-MCP desktop automation tools like [windows-mcp](https://github.com/anthropics/windows-mcp) accept **physical** coordinates for clicking. But when an AI agent uses Windows APIs to find where something is on screen, those APIs return **logical** coordinates. Without knowing the scale factor, every click lands in the wrong place.
+The problem isn't just "some APIs return logical." It's that **different APIs return different coordinate systems with no indication of which one you're getting.** There's no flag, no header, no type annotation — just numbers that look identical but mean completely different things.
+
+### Three ways this breaks AI agents
+
+**1. API mismatch** — Click tools accept physical coordinates, but common Windows APIs return logical:
 
 ```
 What the AI wants to click: [Button at physical (1920, 1080)]
-What the API says:          [Button at logical  (1097, 617)]
+What GetWindowRect says:    [Button at logical  (1097, 617)]
 Where the click lands:                          (1097, 617) in physical space
-                                                 ^^^^^^^^^ WRONG - that's a completely different spot
+                                                 ^^^^^^^^^ WRONG - completely different spot
 ```
+
+**2. Screenshot mismatch** — Screen captures are taken at logical resolution, but click tools expect physical coordinates. On a 3840x2400 display at 175% scaling, screenshots are 2194x1371 pixels. When a vision model (GPT-4o, Claude, CogAgent) looks at a screenshot and estimates "the button is at pixel (500, 300)," that's a logical coordinate. Clicking there in physical space misses by hundreds of pixels:
+
+```
+Vision model sees:    [Button at (500, 300) in screenshot]
+Screenshot space:     Logical (2194x1371)
+Click-Tool expects:   Physical (3840x2400)
+Correct click:        (875, 525)  ← needs 1.75x conversion
+```
+
+**3. Mixed sources within the same tool** — Even a single tool can return both systems. For example, windows-mcp's State-Tool reports element coordinates in physical space (correct for clicking), but its screenshots are captured at logical resolution. An agent combining both — reading element positions from the accessibility tree *and* estimating positions from screenshots — will silently mix coordinate systems.
 
 ### This isn't an edge case
 
