@@ -1,0 +1,27 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.ikoskela/precision-desktop",
+  "description": "Fixes DPI coordinate scaling for Windows desktop automation MCP servers.",
+  "repository": {
+    "url": "https://github.com/ikoskela/precision-desktop",
+    "source": "github"
+  },
+  "version": "0.1.1",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "precision-desktop",
+      "version": "0.1.1",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "description": "Path to windows-mcp installation directory. Auto-detected if not set.",
+          "isRequired": false,
+          "name": "WINDOWS_MCP_PATH"
+        }
+      ]
+    }
+  ]
+}

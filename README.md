@@ -1,5 +1,7 @@
 # precision-desktop
 
+mcp-name: io.github.ikoskela/precision-desktop
+
 **A companion MCP server that fixes DPI coordinate scaling for Windows desktop automation.**
 
 Windows DPI scaling silently breaks every MCP tool that clicks, types, or hovers on the desktop. `precision-desktop` detects and corrects the coordinate mismatch so your AI agent's clicks actually land where they should.
