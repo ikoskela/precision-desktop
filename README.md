@@ -272,6 +272,7 @@ precision-desktop/
 - **Python 3.10+**
 - **PowerShell** (ships with Windows)
 - **[mcp](https://pypi.org/project/mcp/) >= 1.0.0** (MCP SDK)
+- **[MPos](https://sourceforge.net/projects/mpos/)** or similar coordinate reader (for calibration) — any tool that shows the cursor's screen position in both physical and logical coordinates. MPos is lightweight and portable (no install needed)
 
 ## License
 
